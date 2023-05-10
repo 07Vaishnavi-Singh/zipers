@@ -6,7 +6,7 @@ import 'firebase/compat/auth';
 import firebaseConfig from './Firebase';
 import { initializeApp } from "firebase/app";
 
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+// import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { getFirestore, collection, query, where, getDocs, doc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import {
     Button,
@@ -43,13 +43,11 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-
 const app = initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const storage = firebase.storage(app);
 const db = getFirestore();
 const userCollectionRef = collection(db, "users");
-
 
 const ProfileButton = () => {
     const user = useSelector((state) => state.auth.accessToken);
@@ -65,37 +63,34 @@ const ProfileButton = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
-    const [image, setImage] = useState(null);
+    // const [image, setImage] = useState(null);
     const [showAlert, setShowAlert] = useState(false);
 
+    // const handleImageChange = (event) => {
+    //     setImage(event.target.files[0]);
+    // };
 
-    const handleImageChange = (event) => {
-        setImage(event.target.files[0]);
-    };
+    // const handleSubmit = async (event) => {
+    //     event.preventDefault();
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+    //     const storageRef = ref(storage, `profilePictures/${image.name}`);
+    //     await uploadBytes(storageRef, image);
 
+    //     // Get download URL of uploaded image
+    //     const downloadURL = await getDownloadURL(storageRef);
 
-        const storageRef = ref(storage, `profilePictures/${image.name}`);
-        await uploadBytes(storageRef, image);
+    //     // Update Firestore document with download URL
+    //     const userRef = doc(db, "users", user.uid);
+    //     await updateDoc(userRef, { photoURL: downloadURL });
 
-        // Get download URL of uploaded image
-        const downloadURL = await getDownloadURL(storageRef);
-
-        // Update Firestore document with download URL
-        const userRef = doc(db, "users", user.uid);
-        await updateDoc(userRef, { photoURL: downloadURL });
-
-        // Reset state
-        setImage(null);
-    };
-
-
+    //     // Reset state
+    //     setImage(null);
+    // };
+ 
     const handleLogout = () => {
         // Implement your logout functionality here
     };
-
+ 
     const handleForgotPassword = async (event) => {
         event.preventDefault();
 

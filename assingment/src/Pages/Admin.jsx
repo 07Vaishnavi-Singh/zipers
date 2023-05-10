@@ -30,7 +30,6 @@ function Admin() {
         console.log(querySnapshot.docs.length);
         setNumUsers(querySnapshot.docs.length);
 
-
         const q = query(collection(db, "users"), where("email", "==", user.email));
         const querySnapshot2 = await getDocs(q);
         console.log(querySnapshot2.docChanges.length);
@@ -71,6 +70,7 @@ function Admin() {
 
     return (
         <>
+
             <div id="Admin-header">
                 <h1 id="admin-header-title" >ADMIN Portal </h1>
                 <div id="Count">
