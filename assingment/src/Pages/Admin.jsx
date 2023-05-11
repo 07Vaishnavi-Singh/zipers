@@ -14,7 +14,6 @@ import ProfileDrawer from "../Components/ProfileEdit";
 firebase.initializeApp(firebaseConfig);
 
 
-
 function Admin() {
     const [web3, setWeb3] = useState(null);
     const [accounts, setAccounts] = useState([]);
