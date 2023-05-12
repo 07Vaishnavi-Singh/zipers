@@ -1,0 +1,31 @@
+#Loading {
+    background-color: #000;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#Loading-heading {
+    font-size: 3rem;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+    margin-top: 20vh;
+    text-align: center;
+    vertical-align: middle;
+    color: #F78419;
+    text-shadow: 0 0 5px #000;
+    margin-bottom: 1rem;
+}
+
+#logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+    background-color: rgb(60, 60, 60);
+    border-radius: 10px;
+}

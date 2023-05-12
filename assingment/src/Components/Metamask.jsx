@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import ModelViewer from '@metamask/logo';
+import "../Style/Loading.css"
 
 function Logo() {
     const [viewer, setViewer] = useState(null);

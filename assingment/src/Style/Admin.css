@@ -1,0 +1,153 @@
+* {
+    margin: 0;
+
+}
+
+#main-admin {
+    width: 98vw;
+}
+
+#Admin-header {
+    background-color: orange;
+    padding: 25px;
+    display: inline-flex;
+    width: 95%;
+    margin: 1vw;
+    justify-content: space-between;
+    border-radius: 10px;
+}
+
+#admin-header-title {
+    font-size: 2.3rem;
+    font-weight: 500;
+    margin: 0;
+    margin-left: 6vw;
+    padding: 0;
+    padding-top: 10px;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: black
+}
+
+#Count {
+    display: flex;
+    margin-right: 2vw;
+    font-size: 1em;
+    font-weight: 400;
+    padding-top: 11px;
+}
+
+#Count p {
+    margin: 0;
+    margin-right: 10px;
+    font-size: 1em;
+    font-weight: 400;
+    padding-top: 17px;
+}
+
+#admin-table {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+}
+
+.right {
+    margin-top: 10vh;
+    width: 30%;
+    height: 50%;
+    background-color: lightblue;
+    color: black;
+    opacity: 0.9;
+    padding: 10px;
+    margin-right: 0.5vw;
+    border-radius: 10px;
+
+}
+
+.right p {
+    text-align: center;
+    line-break: loose;
+    font-size: 1rem;
+    line-height: 35px;
+}
+
+.right button {
+
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: auto;
+    padding: 10px 40px;
+    margin-left: 20%;
+    height: 50px;
+    border-radius: 10px;
+    border: none;
+    background-color: #008CBA;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+}
+
+.left {
+    width: 70%;
+    color: black;
+    opacity: 0.9;
+    padding: 10px;
+
+    margin-right: 0.5vw;
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+}
+
+#user-button {
+
+    background-color: bisque;
+    margin: 2vh;
+    border-radius: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.8rem;
+    border: 0;
+    height: 50%;
+    margin-top: 10vh;
+}
+
+#user-button:hover {
+    background-color: #008CBA;
+    color: white;
+    font: 100;
+}
+
+.right img {
+    width: 60%;
+    padding-left: 5vw;
+    padding-top: 5vh;
+    padding-bottom: 5vh;
+}
+
+.left {
+    width: 70%;
+
+}
+
+.table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.table th,
+.table td {
+    text-align: left;
+    vertical-align: middle;
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}

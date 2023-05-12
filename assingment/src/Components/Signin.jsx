@@ -4,6 +4,7 @@ import { getFirestore, collection, query, where, getDocs, doc, setDoc, serverTim
 import { useDispatch, useSelector } from 'react-redux';
 import { setAccessToken } from '../store';
 import { setAdminStatus } from '../admin';
+
 import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import adminSlice from '../admin';
 
@@ -31,16 +32,23 @@ const auth = firebase.auth();
 const db = getFirestore();
 const userCollectionRef = collection(db, "users");
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
     root: {
         minWidth: 275,
         maxWidth: 400,
         margin: 'auto',
         marginTop: '10vh',
+        padding: '2rem',
+        backgroundColor: theme.palette.background.default,
+        borderRadius: theme.shape.borderRadius,
+        boxShadow: theme.shadows[2],
+        color: theme.palette.text.primary,
     },
     title: {
-        fontSize: 24,
+        fontSize: '2.4rem',
+        fontWeight: 600,
         marginBottom: '2vh',
+        color: theme.palette.text.primary,
     },
     form: {
         display: 'flex',
@@ -51,8 +59,13 @@ const useStyles = makeStyles({
     input: {
         width: '80%',
         margin: '1vh 0',
+        padding: '0.5rem',
+        borderRadius: theme.shape.borderRadius,
+        backgroundColor: theme.palette.background.paper,
+        color: theme.palette.text.primary,
+        border: `1px solid ${theme.palette.text.primary}`,
     },
-});
+}));
 
 const SignIn = () => {
     const classes = useStyles();
@@ -119,16 +132,23 @@ const SignIn = () => {
 
 
             userDocs.forEach((doc) => {
-                console.log(doc.data());
-                doc.data().isadmin ? dispatch(setAccessToken(doc.data())) : console.log();
-                doc.data().isadmin ? dispatch(setAdminStatus(true)) : console.log();
-                const user_data = JSON.stringify(doc.data());
-                document.cookie = `user=` + user_data + `;expires=${expiryDate.toUTCString()};path=/`;
-                document.cookie = `lastLoginAsAdmin=true;expires=${expiryDate.toUTCString()};path=/`;
+                console.log(doc.data().isadmin);
+                if (doc.data().isadmin) {
+                    dispatch(setAccessToken(doc.data()))
+                    dispatch(setAdminStatus(true))
+                    const user_data = JSON.stringify(doc.data());
+                    document.cookie = `user=` + user_data + `;expires=${expiryDate.toUTCString()};path=/`;
+                    document.cookie = `lastLoginAsAdmin=true;expires=${expiryDate.toUTCString()};path=/`;
+                    navigate("/admin/" + user.displayName
+                    );
+                } else {
+                    alert(user.displayName + ", You are not an admin, Sign in as User");
+                }
+
 
             });
 
-            navigate("/admin/" + user.displayName)
+
 
         } catch (err) {
             setError('Error: ' + err.message);
@@ -173,12 +193,13 @@ const SignIn = () => {
         event.preventDefault();
         try {
             await auth.createUserWithEmailAndPassword(email, password);
+            await auth.signInWithEmailAndPassword(email, password);
             const user = firebase.auth().currentUser;
             console.log('user created with ID:', user.uid);
             await user.updateProfile({
                 displayName: displayName,
             });
-            const userDocRef = doc(userCollectionRef, email); // replace "userId" with the authenticated user's ID
+            const userDocRef = doc(userCollectionRef, email);
             const userData = {
                 displayName: displayName,
                 email: email,
@@ -192,167 +213,186 @@ const SignIn = () => {
                 lastLogin: serverTimestamp()
             };
             setDoc(userDocRef, userData);
+
+            const usersQuery = query(userCollectionRef, where("email", "==", email));
+            const userDocs = await getDocs(usersQuery);
+
+            userDocs.forEach((doc) => {
+                console.log(doc.data());
+                dispatch(setAccessToken(doc.data()))
+                dispatch(setAdminStatus(false))
+
+                const user_data = JSON.stringify(doc.data());
+                document.cookie = `user=` + user_data + `;expires=${expiryDate.toUTCString()};path=/`;
+                document.cookie = `lastLoginAsAdmin=false;expires=${expiryDate.toUTCString()};path=/`;
+
+            });
+
+            navigate("/user/" + user.displayName)
         } catch (error) {
             console.log(error);
         }
+
+
     };
 
     return (
         <>
-            <Card className={classes.root}>
-                <CardContent>
-                    <Typography className={classes.title} gutterBottom>
-                        {newUser ? 'Sign Up' : !showForgotPassword ? 'Sign In' : 'Forgot Password'}
+            <div id='main-signin'>
+                <Card className={classes.root}>
+                    <CardContent>
+                        <Typography className={classes.title} gutterBottom>
+                            {newUser ? 'Sign Up' : !showForgotPassword ? 'Sign In' : 'Forgot Password'}
 
-                    </Typography>
-                    {newUser ? (<>
-                        <form className={classes.form} onSubmit={handleSignUp}>
+                        </Typography>
+                        {newUser ? (<>
+                            <form className={classes.form} onSubmit={handleSignUp}>
 
-                            <TextField
-                                variant="outlined"
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="email"
-                                label="Email"
-                                name="email"
-                                autoComplete="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-
-                            <TextField
-                                variant="outlined"
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="displayName"
-                                label="Display Name"
-                                name="displayName"
-                                autoComplete="displayName"
-                                value={displayName}
-                                onChange={(e) => setDisplayName(e.target.value)}
-                            />
-                            <TextField
-                                variant="outlined"
-                                margin="normal"
-                                required
-                                fullWidth
-                                name="password"
-                                label="Password"
-                                type="password"
-                                id="password"
-                                autoComplete="current-password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                            <TextField
-                                variant="outlined"
-                                margin="normal"
-                                required
-                                fullWidth
-                                name="password2"
-                                label="Re-enter Password"
-                                type="password"
-                                id="password2"
-                                autoComplete="current-password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                            />
-                            <FormControl variant="outlined" margin="normal" fullWidth>
-                                <InputLabel id="country-label">Country</InputLabel>
-
-                                <Select
-                                    labelId="country-label"
-                                    id="country"
-                                    value={selectedCountry}
-                                    onChange={(event) => setSelectedCountry(event.target.value)}
-                                    MenuProps={{ maxHeight: 100 }}
-                                >
-                                    {countries.map((country) => (
-                                        <MenuItem key={country.value} value={country.value}>
-                                            {country.label}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-
-
-
-                            </FormControl>
-                            <p onClick={() => { setNewUser(false) }}>Already have an account .. click here</p>
-                            <Button
-                                type="submit"
-                                fullWidth
-                                variant="contained"
-                                color="primary"
-                                className={classes.submit}
-                                onClick={handleSignUp}
-                            >
-                                Sign Up
-                            </Button>
-
-                        </form>
-                    </>) :
-                        !showForgotPassword ? (
-                            <form className={classes.form} onSubmit={handleLogin}>
-                                {error && <p>{error}</p>}
                                 <TextField
-                                    className={classes.input}
+                                    variant="outlined"
+                                    margin="normal"
+                                    required
+                                    fullWidth
                                     id="email"
                                     label="Email"
-                                    type="email"
-                                    variant="outlined"
+                                    name="email"
+                                    autoComplete="email"
                                     value={email}
-                                    onChange={(event) => setEmail(event.target.value)}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+
+                                <TextField
+                                    variant="outlined"
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id="displayName"
+                                    label="Display Name"
+                                    name="displayName"
+                                    autoComplete="displayName"
+                                    value={displayName}
+                                    onChange={(e) => setDisplayName(e.target.value)}
                                 />
                                 <TextField
-                                    className={classes.input}
-                                    id="password"
+                                    variant="outlined"
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    name="password"
                                     label="Password"
                                     type="password"
-                                    variant="outlined"
+                                    id="password"
+                                    autoComplete="current-password"
                                     value={password}
-                                    onChange={(event) => setPassword(event.target.value)}
+                                    onChange={(e) => setPassword(e.target.value)}
                                 />
-                                <p onClick={() => { setNewUser(true) }}>Dont have an account yet ...Click heree</p>
-                                <Button className={classes.input} onClick={handleAdminLogin} variant="contained" color="primary">
-                                    Log In as Admin
-                                </Button>
-                                <Button
-                                    className={classes.input}
-                                    variant="outlined"
-                                    color="primary"
-                                    onClick={handleForgotPassword2}
-                                >
-                                    Forgot Password
-                                </Button>
-                                <Button className={classes.input} type="submit" variant="contained" color="primary">
-                                    Log In as User
-
-                                </Button>
-                                {showAlert && (
-                                    <div>
-                                        <p>Check your mail for the password reset link</p>
-
-                                    </div>
-                                )}
-                            </form>) : (<form className={classes.form} onSubmit={handleForgotPassword}>
                                 <TextField
-                                    className={classes.input}
-                                    id="email"
-                                    label="Email"
-                                    type="email"
                                     variant="outlined"
-                                    value={email}
-                                    onChange={(event) => setEmail(event.target.value)}
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    name="password2"
+                                    label="Re-enter Password"
+                                    type="password"
+                                    id="password2"
+                                    autoComplete="current-password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
                                 />
-                                <Button className={classes.input} type="submit" variant="contained" color="primary">
-                                    Reset Password
-                                </Button>
-                            </form>)}
-                </CardContent>
-            </Card >
+                                <FormControl variant="outlined" margin="normal" fullWidth>
+                                    <InputLabel id="country-label">Country</InputLabel>
 
+                                    <Select
+                                        labelId="country-label"
+                                        id="country"
+                                        value={selectedCountry}
+                                        onChange={(event) => setSelectedCountry(event.target.value)}
+                                        MenuProps={{ maxHeight: 100 }}
+                                    >
+                                        {countries.map((country) => (
+                                            <MenuItem key={country.value} value={country.value}>
+                                                {country.label}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+
+
+
+                                </FormControl>
+                                <p onClick={() => { setNewUser(false) }}>Already have an account .. click here</p>
+                                <Button
+                                    type="submit"
+                                    fullWidth
+                                    variant="contained"
+                                    color="primary"
+                                    className={classes.submit}
+                                    onClick={handleSignUp}
+                                >
+                                    Sign Up
+                                </Button>
+
+                            </form>
+                        </>) :
+                            !showForgotPassword ? (
+                                <form className={classes.form} onSubmit={handleLogin}>
+                                    {error && <p>{error}</p>}
+                                    <TextField
+                                        className={classes.input}
+                                        id="email"
+                                        label="Email"
+                                        type="email"
+                                        variant="outlined"
+                                        value={email}
+                                        onChange={(event) => setEmail(event.target.value)}
+                                    />
+                                    <TextField
+                                        className={classes.input}
+                                        id="password"
+                                        label="Password"
+                                        type="password"
+                                        variant="outlined"
+                                        value={password}
+                                        onChange={(event) => setPassword(event.target.value)}
+                                    />
+                                    <p onClick={() => { setNewUser(true) }}>Dont have an account yet ...Click heree</p>
+                                    <Button className={classes.input} onClick={handleAdminLogin} variant="contained" color="primary">
+                                        Log In as Admin
+                                    </Button>
+                                    <Button
+                                        className={classes.input}
+                                        variant="outlined"
+                                        color="primary"
+                                        onClick={handleForgotPassword2}
+                                    >
+                                        Forgot Password
+                                    </Button>
+                                    <Button className={classes.input} type="submit" variant="contained" color="primary">
+                                        Log In as User
+
+                                    </Button>
+                                    {showAlert && (
+                                        <div>
+                                            <p>Check your mail for the password reset link</p>
+
+                                        </div>
+                                    )}
+                                </form>) : (<form className={classes.form} onSubmit={handleForgotPassword}>
+                                    <TextField
+                                        className={classes.input}
+                                        id="email"
+                                        label="Email"
+                                        type="email"
+                                        variant="outlined"
+                                        value={email}
+                                        onChange={(event) => setEmail(event.target.value)}
+                                    />
+                                    <Button className={classes.input} type="submit" variant="contained" color="primary">
+                                        Reset Password
+                                    </Button>
+                                </form>)}
+                    </CardContent>
+                </Card >
+            </div>
         </>
 
     );
